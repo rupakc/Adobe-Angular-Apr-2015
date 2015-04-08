@@ -11,7 +11,8 @@
             document.getElementById("divMessage").innerHTML = count;
         }
         function init(){
-            document.getElementById("btnTrack").addEventListener("click", trackClick);
+            var btnTrack =  document.getElementById("btnTrack");
+            btnTrack.addEventListener("click", trackClick);
         }
         window.addEventListener("DOMContentLoaded", init);
     })();
