@@ -70,6 +70,7 @@
 
         bugTrackerApp.factory("Bug", function(){
             function Bug(defaults){
+                this.id = defaults.id || new Date().valueOf().toString();
                 this.title = defaults.title || "";
                 this.isClosed = defaults.isClosed || false;
                 this.createdAt = defaults.createdAt || new Date();
@@ -80,26 +81,51 @@
             return Bug;
         });
 
+        bugTrackerApp.factory("bugStorage", function(){
+            var storage = window.localStorage;
+            return {
+                getAll : function(){
+                    var result = [];
+                    for(var i=0; i< storage.length ; i++){
+                        var id = storage.key(i);
+                        var dataAsString = storage.getItem(id);
+                        var dataAsObject = JSON.parse(dataAsString);
+                        result.push(dataAsObject);
+                    }
+                    return result;
+                },
+                save : function(bug){
+                    var id = bug.id;
+                    var dataAsString = JSON.stringify(bug);
+                    storage.setItem(id, dataAsString);
+                },
+                remove : function(bug){
+                    storage.removeItem(bug.id);
+                }
+            }
+        });
 
+        bugTrackerApp.controller("bugsController",
+        function($scope, Bug, bugStorage){
+            $scope.bugs = bugStorage.getAll();
 
-        bugTrackerApp.controller("bugsController", function($scope, Bug){
-            $scope.bugs = [
-                new Bug({ title : "Application not loading",  isClosed : false, createdAt : new Date("9-Apr-2015 9:00:00")}),
-                new Bug({ title : "User unable to login",  isClosed : false, createdAt : new Date("9-Apr-2015 11:00:00")}),
-                new Bug({ title : "Data not saved", isClosed :  false, createdAt : new Date("9-Apr-2015 13:00:00")})
-            ];
             $scope.addBug = function(){
-                $scope.bugs.push(new Bug($scope.newBug, false));
+                var bug = new Bug({title : $scope.newBug});
+                bugStorage.save(bug);
+                $scope.bugs.push(bug);
                 $scope.newBug = "";
             };
             $scope.toggleStatus =function(bug){
                 bug.toggle();
+                bugStorage.save(bug);
             };
             $scope.removeClosed = function(){
                 for(var i=$scope.bugs.length - 1; i>=0; i--){
                     var bug = $scope.bugs[i];
-                    if (bug.isClosed)
+                    if (bug.isClosed){
+                        bugStorage.remove(bug);
                         $scope.bugs.splice(i,1);
+                    }
                 }
             };
 
