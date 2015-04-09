@@ -35,15 +35,28 @@
     </script>
     <script>
 
-            var calculatorApp = angular.module("calculatorApp",[]);
-            calculatorApp.run(function($rootScope){
-                var scope = $rootScope;
+            window.calculatorApp = angular.module("calculatorApp",[]);
 
-                scope.calculate = function(){
-                    var gross = scope.basic.toInt() + scope.hra.toInt() + scope.da.toInt();
-                    var net= gross * ((100-scope.tax.toInt())/100);
-                    scope.salary = net;
-                }
+            calculatorApp.controller("calculatorController", function($scope){
+                var calculator = {
+                    basic : 0,
+                    hra : 0,
+                    da : 0,
+                    tax : 0,
+                    salary : 0,
+                    calculate : function(){
+                        var gross = this.basic.toInt() + this.hra.toInt() + this.da.toInt();
+                        var net= gross * ((100-this.tax.toInt())/100);
+                        this.salary = net;
+                    }
+                };
+
+                $scope.calculator = calculator;
+            })
+            calculatorApp.run(function($rootScope){
+
+
+
             });
 
 
@@ -52,20 +65,35 @@
 </head>
 <body ng-app="calculatorApp">
     <h1>Salary Calculator</h1>
-    <div class="content" id="calculator1">
-        <div class="field"><label for="">Basic :</label><input type="text" name="" id="txtBasic" ng-model="basic"></div>
-        <div class="field"><label for="">HRA :</label><input type="text" name="" id="txtHra" ng-model="hra"></div>
-        <div class="field"><label for="">DA :</label><input type="text" name="" id="txtDa" ng-model="da"></div>
+    <div class="content" id="calculator1" ng-controller="calculatorController">
+        <div class="field"><label for="">Basic :</label><input type="text" name="" id="txtBasic" ng-model="calculator.basic"></div>
+        <div class="field"><label for="">HRA :</label><input type="text" name="" id="txtHra" ng-model="calculator.hra"></div>
+        <div class="field"><label for="">DA :</label><input type="text" name="" id="txtDa" ng-model="calculator.da"></div>
         <div class="field">
             <label for="">Tax :</label>
-            <input ng-model="tax" type="range" name="" id="rangeTax" min="0" max="30" value="0">
-            <span id="spanTax" ng-bind="tax"></span>
+            <input ng-model="calculator.tax" type="range" name="" id="rangeTax" min="0" max="30" value="0">
+            <span id="spanTax" ng-bind="calculator.tax"></span>
         </div>
-        <div class="field"><input type="button" value="Calculate" id="btnCalculate" ng-click="calculate()"></div>
+        <div class="field"><input type="button" value="Calculate" id="btnCalculate" ng-click="calculator.calculate()"></div>
         <div class="field">
-            <div id="divResult" ng-bind="salary"></div>
+            <div id="divResult" ng-bind="calculator.salary"></div>
         </div>
     </div>
+    <div class="content" id="calculator1" ng-controller="calculatorController">
+        <div class="field"><label for="">Basic :</label><input type="text" name="" id="txtBasic" ng-model="calculator.basic"></div>
+        <div class="field"><label for="">HRA :</label><input type="text" name="" id="txtHra" ng-model="calculator.hra"></div>
+        <div class="field"><label for="">DA :</label><input type="text" name="" id="txtDa" ng-model="calculator.da"></div>
+        <div class="field">
+            <label for="">Tax :</label>
+            <input ng-model="calculator.tax" type="range" name="" id="rangeTax" min="0" max="30" value="0">
+            <span id="spanTax" ng-bind="calculator.tax"></span>
+        </div>
+        <div class="field"><input type="button" value="Calculate" id="btnCalculate" ng-click="calculator.calculate()"></div>
+        <div class="field">
+            <div id="divResult" ng-bind="calculator.salary"></div>
+        </div>
+    </div>
+
 
 </body>
 </html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bug Tracker</title>
+    <style>
+        h1{
+            border-top : 2px solid blue;
+            border-bottom : 2px solid blue;
+            padding: 10px;
+            background-color: lightblue;
+        }
+
+        .closed {
+            color : red;
+            text-decoration: line-through;
+            font-style: italic;
+            font-weight: bold;
+        }
+        li{
+            cursor: pointer;
+        }
+    </style>
+    <script>
+    /*
+    1. List the bugs
+    2. Add a new bug
+    3. Toggle bug status
+    4. Remove closed bugs
+    5. Display stats
+    6. search for bugs
+    7. sort the bugs
+    8. persist the bugs in localStorage
+    9. persist the bugs in the server
+    10. create categories for bugs
+    */
+    </script>
+</head>
+<body>
+    <h1>Bug Tracker</h1>
+    <div class="content">
+        <label for="">Bug :</label>
+        <input type="text" name="" id="">
+        <input type="button" value="Add Bug">
+        <input type="button" value="Remove Closed">
+        <ol>
+            <li>Application not loading</li>
+            <li class="closed">User unable to login</li>
+            <li>Data not saved</li>
+        </ol>
+    </div>
+</body>
+</html>
