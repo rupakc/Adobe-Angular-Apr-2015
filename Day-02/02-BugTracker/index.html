@@ -66,7 +66,17 @@
     <script src="angular.js"></script>
     <script src="moment.js"></script>
     <script>
-        var bugTrackerApp = angular.module("bugTrackerApp",[]);
+        var utils = angular.module("utils",[]);
+        utils.value("defaultTextLength", 20);
+        utils.filter("trimText", function(defaultTextLength){
+            return function(data, textLength){
+                textLength = textLength || defaultTextLength;
+                return data.length > textLength ? data.substr(0,textLength) + "..." : data;
+            }
+        });
+
+
+        var bugTrackerApp = angular.module("bugTrackerApp",["utils"]);
 
         bugTrackerApp.factory("Bug", function(){
             function Bug(defaults){
@@ -81,28 +91,29 @@
             return Bug;
         });
 
-        bugTrackerApp.factory("bugStorage", function(){
-            var storage = window.localStorage;
-            return {
-                getAll : function(){
+        bugTrackerApp.service("bugStorage", function (Bug, $window){
+            var storage = $window.localStorage;
+
+                this.getAll = function(){
                     var result = [];
                     for(var i=0; i< storage.length ; i++){
                         var id = storage.key(i);
                         var dataAsString = storage.getItem(id);
-                        var dataAsObject = JSON.parse(dataAsString);
-                        result.push(dataAsObject);
+                        var dataAsObject = $window.JSON.parse(dataAsString);
+                        var bug = new Bug(dataAsObject);
+                        result.push(bug);
                     }
                     return result;
-                },
-                save : function(bug){
+                };
+                this.save = function(bug){
                     var id = bug.id;
-                    var dataAsString = JSON.stringify(bug);
+                    var dataAsString = $window.JSON.stringify(bug);
                     storage.setItem(id, dataAsString);
                 },
-                remove : function(bug){
+                this.remove = function(bug){
                     storage.removeItem(bug.id);
                 }
-            }
+
         });
 
         bugTrackerApp.controller("bugsController",
@@ -136,6 +147,9 @@
                 return momentApi(data).fromNow();
             }
         });
+
+
+
     </script>
 </head>
 <body ng-app="bugTrackerApp">
@@ -164,7 +178,7 @@
             <li ng-repeat="bug in bugs | filter:{title : searchBug}">
                 <div class="title"
                     ng-click="toggleStatus(bug)"
-                    ng-class="{closed : bug.isClosed}"> {{bug.title}} </div>
+                    ng-class="{closed : bug.isClosed}"> {{bug.title | trimText : 40}} </div>
                 <div class="timeStamp"> {{bug.createdAt | toMoment }} </div>
             </li>
         </ol>
