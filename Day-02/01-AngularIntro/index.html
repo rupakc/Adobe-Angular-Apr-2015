@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Angular Intro</title>
+    <style>
+    label{
+        display : block;
+    }
+    </style>
+    <script src="jquery-1.11.2.js"></script>
+    <script src="angular.js"></script>
+    <script>
+
+        $(function(){
+            angular.bootstrap(document.body,[]);
+            var scope  = window.appScope = angular.element(document.body).scope();
+
+            scope.firstName = "";
+            scope.lastName = "";
+            scope.greetMsg = "";
+            scope.greet = function(){
+                scope.greetMsg = "Hi " + scope.firstName + " " + scope.lastName + ", Have a nice day!";
+            }
+
+            //model changes
+
+
+
+
+            //View Events
+            $("input:text").each(function(index,elem){
+                var $elem = $(elem);
+                var attr = $elem.attr("appModel");
+                scope.$watch(attr, function(newValue, oldValue){
+                    $elem.val(newValue);
+                });
+            });
+
+            $("input:text").change(function(){
+                var value = this.value;
+                var that = this;
+                var model = $(this).attr("appModel");
+                scope.$apply(function(){
+                    scope[model] = value;
+                });
+            });
+
+            $("input:button").click(function(){
+                var method = $(this).attr("appClick");
+                scope.$apply(function(){
+                    scope[method]();
+                })
+            });
+
+            $("*[appHtml]").each(function(index, elem){
+                var $elem = $(elem);
+                var attr = $elem.attr("appHtml");
+                scope.$watch(attr, function(newValue, oldValue){
+                    $elem.html(newValue);
+                });
+            });
+        })
+
+    </script>
+</head>
+<body>
+    <div>
+        <label for="">First Name:</label>
+        <input type="text" name="" id="txtFirstName" appModel="firstName">
+    </div>
+    <div>
+        <label for="">Last Name:</label>
+        <input type="text" name="" id="txtLastName" appModel="lastName">
+    </div>
+    <div><input type="button" value="Greet" id="btnGreet" appClick="greet"></div>
+    <div>
+        <div id="divMessage" appHtml="greetMsg">[Greet Msg]</div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Salary Calculator</title>
+    <style>
+        h1{
+            border-top : 2px solid blue;
+            border-bottom : 2px solid blue;
+            padding: 10px;
+            background-color: lightblue;
+        }
+        label{
+            display : block;
+        }
+        .field{
+            margin-top: 10px;
+        }
+        #divResult{
+            font-size: 28pt;
+            color : red;
+        }
+        .content{
+            border : 2px solid black;
+            background-color: lightgray;
+            padding : 5px;
+        }
+    </style>
+    <script src="jquery-1.11.2.js"></script>
+    <script src="angular.js"></script>
+    <script>
+        String.prototype.toInt = function(){
+            return parseInt(this,10);
+        }
+    </script>
+    <script>
+            $(function(){
+            angular.bootstrap(document.body,[]);
+            var scope  = window.appScope = angular.element(document.body).scope();
+
+            scope.basic = "";
+            scope.hra = "";
+            scope.da = "";
+            scope.tax = "";
+            scope.salary = "";
+            scope.calculate = function(){
+                var gross = scope.basic.toInt() + scope.hra.toInt() + scope.da.toInt();
+                var net= gross * ((100-scope.tax.toInt())/100);
+                scope.salary = net;
+            }
+
+            //model changes
+
+
+
+
+            //View Events
+            $(":text, input[type='range']").each(function(index,elem){
+                var $elem = $(elem);
+                var attr = $elem.attr("appModel");
+                scope.$watch(attr, function(newValue, oldValue){
+                    $elem.val(newValue);
+                });
+            });
+
+            $("input:text , input[type='range']").change(function(){
+                var value = this.value;
+                var that = this;
+                var model = $(this).attr("appModel");
+                scope.$apply(function(){
+                    scope[model] = value;
+                });
+            });
+
+            $("input:button").click(function(){
+                var method = $(this).attr("appClick");
+                scope.$apply(function(){
+                    scope[method]();
+                })
+            });
+
+            $("*[appHtml]").each(function(index, elem){
+                var $elem = $(elem);
+                var attr = $elem.attr("appHtml");
+                scope.$watch(attr, function(newValue, oldValue){
+                    $elem.html(newValue);
+                });
+            });
+        })
+    </script>
+</head>
+<body>
+    <h1>Salary Calculator</h1>
+    <div class="content" id="calculator1">
+        <div class="field"><label for="">Basic :</label><input type="text" name="" id="txtBasic" appModel="basic"></div>
+        <div class="field"><label for="">HRA :</label><input type="text" name="" id="txtHra" appModel="hra"></div>
+        <div class="field"><label for="">DA :</label><input type="text" name="" id="txtDa" appModel="da"></div>
+        <div class="field">
+            <label for="">Tax :</label>
+            <input appModel="tax" type="range" name="" id="rangeTax" min="0" max="30" value="0">
+            <span id="spanTax" appHtml="tax"></span>
+        </div>
+        <div class="field"><input type="button" value="Calculate" id="btnCalculate" appClick="calculate"></div>
+        <div class="field">
+            <div id="divResult" appHtml="salary"></div>
+        </div>
+    </div>
+
+</body>
+</html>
