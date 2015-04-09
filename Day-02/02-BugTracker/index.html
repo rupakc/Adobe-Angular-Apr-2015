@@ -17,11 +17,39 @@
             font-style: italic;
             font-weight: bold;
         }
-        li{
+        .title{
             cursor: pointer;
+            font-size: 16pt;
+        }
+        li{
+            list-style: none;
+            border : 2px solid gray;
+            padding: 5px;
+            border-radius: 5px;
+            margin: 3px;
+            background-color: lightsteelblue;
+        }
+        ol{
+            width : 50%
         }
     </style>
     <script>
+    /*
+    window.localStorage
+        - key/value store
+        - both key and value should be strings
+
+        - setItem(key,value)
+        - getItem(key) => value
+        - removeItem(key)
+        - key(index) => key
+        - clear()
+        - length
+
+        unique key -> new Date().valueOf().toString()
+        window.JSON.stringify(obj) -> object to string
+        window.JSON.parse(str) -> string to object
+    */
     /*
     1. List the bugs
     2. Add a new bug
@@ -36,13 +64,15 @@
     */
     </script>
     <script src="angular.js"></script>
+    <script src="moment.js"></script>
     <script>
         var bugTrackerApp = angular.module("bugTrackerApp",[]);
 
         bugTrackerApp.factory("Bug", function(){
-            function Bug(title, isClosed){
-                this.title = title;
-                this.isClosed = isClosed;
+            function Bug(defaults){
+                this.title = defaults.title || "";
+                this.isClosed = defaults.isClosed || false;
+                this.createdAt = defaults.createdAt || new Date();
             }
             Bug.prototype.toggle = function(){
                 this.isClosed = !this.isClosed;
@@ -50,13 +80,13 @@
             return Bug;
         });
 
+
+
         bugTrackerApp.controller("bugsController", function($scope, Bug){
-
-
             $scope.bugs = [
-                new Bug("Application not loading",  false),
-                new Bug("User unable to login",  false),
-                new Bug("Data not saved",  false)
+                new Bug({ title : "Application not loading",  isClosed : false, createdAt : new Date("9-Apr-2015 9:00:00")}),
+                new Bug({ title : "User unable to login",  isClosed : false, createdAt : new Date("9-Apr-2015 11:00:00")}),
+                new Bug({ title : "Data not saved", isClosed :  false, createdAt : new Date("9-Apr-2015 13:00:00")})
             ];
             $scope.addBug = function(){
                 $scope.bugs.push(new Bug($scope.newBug, false));
@@ -74,6 +104,12 @@
             };
 
         });
+        bugTrackerApp.value("momentApi", moment);
+        bugTrackerApp.filter("toMoment", function(momentApi){
+            return function(data){
+                return momentApi(data).fromNow();
+            }
+        });
     </script>
 </head>
 <body ng-app="bugTrackerApp">
@@ -89,7 +125,7 @@
         <hr>
             <div>
                 <label for="">Search :</label>
-                <input type="text" >
+                <input type="text" ng-model="searchBug" >
             </div>
         <hr>
 
@@ -99,11 +135,12 @@
         <input type="button" value="Add Bug" ng-click="addBug()">
         <input type="button" value="Remove Closed" ng-click="removeClosed()">
         <ol>
-            <li
-                ng-repeat="bug in bugs | filter:'saved'"
-                ng-click="toggleStatus(bug)"
-                ng-class="{closed : bug.isClosed}"
-            >{{bug.title}}</li>
+            <li ng-repeat="bug in bugs | filter:{title : searchBug}">
+                <div class="title"
+                    ng-click="toggleStatus(bug)"
+                    ng-class="{closed : bug.isClosed}"> {{bug.title}} </div>
+                <div class="timeStamp"> {{bug.createdAt | toMoment }} </div>
+            </li>
         </ol>
     </div>
 </body>
