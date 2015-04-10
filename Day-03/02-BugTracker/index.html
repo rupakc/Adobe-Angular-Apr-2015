@@ -116,29 +116,63 @@
 
         });
 
-        bugTrackerApp.controller("bugsController",
-        function($scope, Bug, bugStorage){
-            $scope.bugs = bugStorage.getAll();
+        bugTrackerApp.service("bugService", function($http, $q, Bug, $timeout){
+           this.getAll = function(){
+               var defered = $q.defer();
+               var promise =  $http.get("http://localhost:3000/bugs");
+               promise.then(function(response){
+                    $timeout(function(){
+                        var result = response.data.map(function(d){
+                            return new Bug(d);
+                        });
+                       defered.resolve(result);
+                    },3000);
+                });
+               return defered.promise;
+               /*var promise =  $http.get("http://localhost:3000/bugs");
+               return promise.then(function(response){
+                    return response.data.map(function(d){
+                        return new Bug(d);
+                    });
+                });*/
 
-            $scope.addBug = function(){
-                var bug = new Bug({title : $scope.newBug});
-                bugStorage.save(bug);
-                $scope.bugs.push(bug);
-                $scope.newBug = "";
-            };
-            $scope.toggleStatus =function(bug){
-                bug.toggle();
-                bugStorage.save(bug);
-            };
-            $scope.removeClosed = function(){
-                for(var i=$scope.bugs.length - 1; i>=0; i--){
-                    var bug = $scope.bugs[i];
-                    if (bug.isClosed){
-                        bugStorage.remove(bug);
-                        $scope.bugs.splice(i,1);
+           }
+        });
+
+
+        bugTrackerApp.controller("bugsController",
+            function($scope, Bug, bugStorage, bugService){
+                //$scope.bugs = bugStorage.getAll();
+
+                //load from server
+                $scope.bugs = [];
+                bugService
+                    .getAll()
+                    .then(function(bugs){
+                        $scope.bugs = bugs;
+                    });
+
+
+
+                $scope.addBug = function(){
+                    var bug = new Bug({title : $scope.newBug});
+                    bugStorage.save(bug);
+                    $scope.bugs.push(bug);
+                    $scope.newBug = "";
+                };
+                $scope.toggleStatus =function(bug){
+                    bug.toggle();
+                    bugStorage.save(bug);
+                };
+                $scope.removeClosed = function(){
+                    for(var i=$scope.bugs.length - 1; i>=0; i--){
+                        var bug = $scope.bugs[i];
+                        if (bug.isClosed){
+                            bugStorage.remove(bug);
+                            $scope.bugs.splice(i,1);
+                        }
                     }
-                }
-            };
+                };
 
         });
         bugTrackerApp.value("momentApi", moment);
