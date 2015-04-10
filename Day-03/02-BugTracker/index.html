@@ -91,8 +91,14 @@
             return Bug;
         });
 
-        bugTrackerApp.service("bugStorage", function (Bug, $window){
-            var storage = $window.localStorage;
+        bugTrackerApp.config(function(bugStorageProvider){
+            bugStorageProvider.setStorage("session");
+        });
+
+        bugTrackerApp.provider("bugStorage", function(){
+            var storage = window.localStorage;
+            function BugStorage(Bug, $window, store){
+                var storage = store;
 
                 this.getAll = function(){
                     var result = [];
@@ -114,7 +120,25 @@
                     storage.removeItem(bug.id);
                 }
 
+        }
+            return {
+                setStorage : function(storageOption){
+                    if (storageOption == "session"){
+                        storage = window.sessionStorage;
+                    } else {
+                        storage = window.localStorage;
+                    }
+                },
+                $get : function(Bug, $window){
+                    console.dir(storage);
+                    return new BugStorage(Bug, $window, storage);
+                }
+            };
         });
+
+
+
+
 
         bugTrackerApp.service("bugService", function($http, $q, Bug, $timeout){
            this.getAll = function(){
@@ -142,15 +166,17 @@
 
         bugTrackerApp.controller("bugsController",
             function($scope, Bug, bugStorage, bugService){
-                //$scope.bugs = bugStorage.getAll();
+
+                $scope.bugs = bugStorage.getAll();
 
                 //load from server
-                $scope.bugs = [];
+                /*$scope.bugs = [];
                 bugService
                     .getAll()
                     .then(function(bugs){
                         $scope.bugs = bugs;
                     });
+                */
 
 
 
